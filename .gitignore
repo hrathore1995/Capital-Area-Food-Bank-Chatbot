@@ -1,0 +1,27 @@
+# Python cache and environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.llms/
+
+# Logs and data
+chat_log.csv
+embedding_ticket_data.pkl
+cleaned_final_data.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
