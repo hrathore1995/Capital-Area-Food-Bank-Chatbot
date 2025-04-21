@@ -7,17 +7,31 @@ from datetime import datetime
 # Securely load API key from Streamlit secrets
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-def generate_reply(user_query):
-    system_prompt = """
+# Map categories to keywords (context)
+topic_map = {
+    "Order or Delivery Change Requests": "order, delivery, items, change, item",
+    "Food Availability or Selection Issues": "available, out of stock, food types, substitutions",
+    "Training or New Partner Setup Questions": "partner registration, onboarding, training, support",
+    "General Delivery and Food Support": "support, delay, food box, feedback",
+    "Adding/Modifying Orders or Cases": "add item, modify order, cases, quantity",
+    "Other": "miscellaneous or unspecified issue"
+}
+
+def generate_reply(user_query, issue_category):
+    category_keywords = topic_map.get(issue_category, "")
+
+    system_prompt = f"""
 You are a helpful AI assistant for Capital Area Food Bank.
 
 Your task:
-1. Analyze the user's query.
-2. Classify it as one of: Very Urgent, Urgent, Medium, or Low Priority.
-3. Generate a short, polite, helpful reply (under 60 words). Just the helpful core content and answer your first response with a greeting always.
+1. Understand the user's query in the context of the selected issue category.
+2. Classify the urgency level as one of: Very Urgent, Urgent, Medium, or Low Priority.
+3. Generate a short, polite, and helpful response (under 60 words) in context to selected issue category. Always begin your first response with a friendly greeting.
 
+Issue Category: {issue_category}
+Relevant Context: {category_keywords}
 
-Return format:
+Return your reply in this format:
 Priority: <One of the 4 levels>
 Response: <Helpful response only>
 """
@@ -40,17 +54,17 @@ Response: <Helpful response only>
         priority = "Unknown"
         core_reply = output
 
-    # Wrap the reply with greeting and closing
+    # Final message with footer
     full_reply = (
-        
         f"{core_reply}\n\n"
         "Capital Area Food Bank Droid Assist Chat Support"
     )
 
-    # Log to CSV
+    # Log query + category + response
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "query": user_query,
+        "category": issue_category,
         "priority": priority,
         "ai_response": full_reply
     }
